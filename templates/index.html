@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    
+
+    <title>E-football 2024 Cards</title>
+    <link rel="shortcut icon" href="../static/resources/favicon-32x32.png" type="image/x-icon">
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
+
+        .mytitle {
+            width: 100%;
+            height: 250px;
+
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://miro.medium.com/v2/resize:fit:828/format:webp/1*PRHUcAM_r2-FiCljMGwDWg.jpeg');
+            background-position: center;
+            background-size: cover;
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mytitle > button {
+            width: 200px;
+            height: 50px;
+
+            background-color: transparent;
+            color: white;
+
+            border-radius: 50px;
+            border: 1px solid white;
+
+            margin-top: 10px;
+        }
+
+        .mytitle > button:hover {
+            border: 2px solid white;
+        }
+
+        .mycomment {
+            color: gray;
+        }
+
+        .mycards {
+            margin: 20px auto 0px auto;
+            width: 95%;
+            max-width: 1200px;
+        }
+
+        .mypost {
+            width: 95%;
+            max-width: 500px;
+            margin: 20px auto 0px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 3px 0px gray;
+
+            display: none;
+        }
+
+        .mybtns {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            margin-top: 20px;
+        }
+        .mybtns > button {
+            margin-right: 10px;
+        }
+        .delete{
+            margin: 0 auto;
+            display: block;
+            text-align: center;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .top{
+            position: fixed;
+            bottom:3rem; right: 2rem;
+            z-index: 100;
+            display: none;
+        }
+        .navbar{
+            display: flex;
+            flex-direction: row;
+            background-color: lightblue;
+            width: 100%;
+            height: 80px;
+        }
+        .navLinks{
+            display: flex;
+            flex-direction: row;
+        }
+        li {
+            list-style: none;
+            padding-top: 15px;
+
+        }
+
+        li a {
+            text-decoration: none;
+            color: black;
+            font-size: 20px;
+            margin: 25px;
+            margin-top: auto;
+
+        }
+
+        li a:hover {
+            color: blue;
+        }
+        footer {
+            margin-top: 5em;
+            background-color: black;
+            color: white;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    <script>
+        $(document).ready(function(){
+          listing();
+        });
+
+        function listing() {
+            $('#cards-box').empty('');
+            $.ajax({
+                type: 'GET',
+                url: '/player',
+                data: {},
+                success: function (response) {
+                    let players = response['players']
+                    for(let i=0; i<players.length; i++){
+                        let num = players[i]['number']
+                        let name = players[i]['name']
+                        let image = players[i]['image']
+                        let comment = players[i]['comment']
+                        let rating = players[i]['rating']
+                        let description = players[i]['description']
+
+                        let star = '⭐'.repeat(rating)
+
+                        let html = `<div class="col">
+                                    <div class="card h-100">
+                                        <img src="${image}"
+                                             class="card-img-top">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${name}</h5>
+                                            <p class="card-text">${description}</p>
+                                            <p>${star}</p>
+                                            <p class="mycomment">${comment}</p>
+                                        </div>
+                                        <div class="card-footer">
+                                            <button onclick="delete_card(${num})" type="button" class="btn btn-outline-danger delete">Delete card</button>
+                                        </div>
+                                    </div>
+                                </div>`
+                        $('#cards-box').append(html)
+                    }
+                }
+            })
+        }
+
+        function posting() {
+            let url = $('#url').val()
+            let rating = $('#star').val()
+            let comment = $('#comment').val()
+
+            if (url == "") {
+                    alert("Please fill out the URL")
+                    $("#url").focus()
+                    return
+                }  if (rating == "") {
+                    alert("Please fill out rating")
+                    $("#star").focus()
+                    return
+                } if (comment == "") {
+                    alert("Please fill out comment")
+                    $("#comment").focus()
+                    return
+                }
+                
+            
+
+            $.ajax({
+                type: 'POST',
+                url: '/player',
+                data: {url_give:url, rating_give:rating, comment_give:comment},
+                success: function (response) {
+                    alert(response['msg'])
+                    window.location.reload();
+                }
+            });
+        }
+
+        function delete_card(num) {
+            $.ajax({
+                type: "POST",
+                url: "/delete",
+                data: { num_give: num },
+                success: function (response) {
+                    alert(response["msg"]);
+                    window.location.reload();
+                }
+            });
+        }
+
+        function open_box(){
+            $('#post-box').show()
+        }
+        function close_box(){
+            $('#post-box').hide()
+        }
+    </script>
+</head>
+
+<body id="home">
+    <div class="navbar">
+        <div style="margin-left: 25px; margin-top: 10px;">
+            <p><a href="https://pesdb.net/efootball/"><img src="../static/resources/logo 1.png" alt="logo" height="40px"></a></p>
+        </div>
+        <div>
+            <ul class="navLinks">        
+                <li><a href="https://pesdb.net/efootball/" target="_blank">PES-DB</a></li>
+                <span style="padding-top: 10px; padding-left: 25px;"><a href="../static/resources/instructions.pdf" target="_blank"><button type="button" class="btn btn-primary">User Guide</button></a></span>
+                <span style="padding-top: 15px; padding-left: 50px; padding-right: 25px;">
+                    <div class="col-auto" style="padding-top: 5px;">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="myFunction()">
+                            </div>
+                        </div>
+                </span>
+            </ul>
+        </div>
+    </div>
+<div class="mytitle">
+    <h1>Add Your Favorite e-football Players</h1>
+    <small>Choose between 18000+ players available</small>
+    <button onclick="open_box()">Save a player card</button>
+</div>
+<div class="mypost" id="post-box">
+    <div class="form-floating mb-3">
+        <input id="url" type="email" class="form-control" placeholder="name@example.com">
+        <label>Player card URL</label>
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupSelect01">Rating</label>
+        <select class="form-select" id="star">
+            <option selected value="">-- Select a rating --</option>
+            <option value="1">⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+    </div>
+    <div class="form-floating">
+        <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+        <label for="floatingTextarea2">Comment</label>
+    </div>
+    <div class="mybtns">
+        <button onclick="posting()" type="button" class="btn btn-outline-primary">Save</button>
+        <button onclick="close_box()" type="button" class="btn btn-outline-secondary">Close</button>
+    </div>
+</div>
+<div class="mycards">
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+        <div class="col">
+            <div class="card h-100">
+                <img src="..."
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">KDB</h5>
+                    <p class="card-text">One of the greatest player in the world.</p>
+                    <p>⭐⭐⭐</p>
+                    <p class="mycomment">Fire</p>
+                </div>
+                <div class="card-footer">
+                    <button onclick="delete_card(1)" type="button" class="btn btn-outline-danger delete">Delete card</button>
+                </div>
+            </div>
+        </div>
+<div class="col">
+            <div class="card h-100">
+                <img src="..."
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">T. Courtois</h5>
+                    <p class="card-text">Best GK in the world.</p>
+                    <p>⭐⭐⭐</p>
+                    <p class="mycomment">Awesome</p>
+                </div>
+                <div class="card-footer">
+                    <button onclick="delete_card(2)" type="button" class="btn btn-outline-danger delete">Delete card</button>
+                </div>
+            </div>
+        </div>
+<div class="col">
+            <div class="card h-100">
+                <img src="..."
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">KDB</h5>
+                    <p class="card-text">One of the greatest player in the world.</p>
+                    <p>⭐⭐⭐</p>
+                    <p class="mycomment">Great</p>
+                </div>
+                <div class="card-footer">
+                    <button onclick="delete_card(3)" type="button" class="btn btn-outline-danger delete">Delete card</button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="..."                    
+                    class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">T. Courtois</h5>
+                    <p class="card-text">Best GK in the world.</p>
+                    <p>⭐⭐⭐</p>
+                    <p class="mycomment">Superb GK</p>
+                </div>
+                <div class="card-footer">
+                    <button onclick="delete_card(4)" type="button" class="btn btn-outline-danger delete">Delete card</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="#home" class="top" id="myBtn">
+    <img src="../static/resources/top arrow image.png" alt="Top" width="50px">
+</a>
+
+<footer>
+    &copy; <a href="https://medium.com/" style="text-decoration: none; color: white;"> Arunava Ghosh Roy</a>. 2024. All rights reserved.
+</footer>
+
+<script src="../static/script.js"></script>
+
+</body>
+</html>
